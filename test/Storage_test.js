@@ -1,5 +1,5 @@
 'use strict';
-var Storage = require('../src/Storage');
+var Storage = require('../Storage');
 var chai = require('chai');
 var expect = chai.expect;
 

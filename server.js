@@ -3,9 +3,7 @@ var bodyParser = require('body-parser');
 var Storage = require('./Storage');
 
 var storage = new Storage();
-storage.add('juice');
-storage.add('milk');
-storage.add('chicken');
+
 
 var jsonParser = bodyParser.json();
 
@@ -17,22 +15,40 @@ app.get('/items', function(request, response){
 })
 
 app.post('/items', jsonParser, function(request, response){
-	var item = storage.add(request.body.name);
-	response.status(201).json(item);
+	
+	if (!('name' in request.body)){
+		response.status(400).send();
+	} else {
+		var item = storage.add(request.body.name);
+		response.status(201).json(item);
+	}
 })
 
 app.put('/items/:id', jsonParser, function(request, response){
 	var item = request.body.name; 
 	var itemId = request.params.id;
-	var newItem = storage.update(item, itemId);
-	response.status(200).json(newItem);
+	
+	
+	if (storage.items[itemId]){
+		var newItem = storage.update(item, itemId);
+		response.status(200).json(newItem);
+	} else {
+		response.status(400).send({message: "the item id doesn't exist"});		
+	}
+	
 })
 
 app.delete('/items/:id', function(request, response){
 	itemId = request.params.id;
-	storage.delete(itemId);
-	response.status(200).send(); 
 	
+	if (storage.items[itemId]){
+		storage.delete(itemId);
+		response.status(200).send(); 
+	} else {
+		response.status(400).send({message: "the item id doesn't exist"});
+	}
 	
 })
 app.listen(8080);
+
+module.exports = {server:app, storage:storage};
